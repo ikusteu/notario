@@ -1,0 +1,55 @@
+# -------General ignore patterns (for all subfolders of the repo)------- #
+
+# Dependencies
+**/node_modules
+**/.pnp
+**/.pnp.js
+
+# Secrets
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+**/.env.staging.local
+**/.envrc
+
+# Misc. .log files
+**/npm-debug.log*
+**/.pnpm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/build-storybook.log*
+**/*.log
+**/build.output
+**/deploy.output
+
+# Runtime data
+**/*.pid
+**/*.seed
+**/*.pid.lock
+
+# IDE specific
+**/.vscode
+
+# OS specific
+**/.DS_Store
+
+# Production build or library dist files and svelte meta files
+**/dist
+**/build
+**/.svelte-kit
+
+# Test reports
+**/junit.xml
+
+# Playwright metedata
+**/test-results
+**/playwright-report
+
+# -------Ignored contents of the root of the repo------- #
+
+# Rush temporary files
+common/deploy/
+common/temp/
+common/autoinstallers/*/.npmrc
+**/.rush/temp/
