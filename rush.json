@@ -388,10 +388,10 @@
 		{
 			"packageName": "@notario/scaffold",
 			"projectFolder": "pkg/scaffold"
+		},
+		{
+			"packageName": "@notario/extension",
+			"projectFolder": "apps/extension"
 		}
-		// {
-		// "packageName": "@notario/extension",
-		// "projectFolder": "apps/extension"
-		// },
 	]
 }

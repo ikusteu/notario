@@ -1,0 +1,18 @@
+{
+	"name": "Notario extension",
+	"version": "1.0",
+	"description": "Takes notes",
+	"permissions": ["activeTab", "background", "clipboardRead", "storage"],
+	"default_locale": "en",
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["./dist/index.js"],
+			"type": "module"
+		}
+	],
+	"background": {
+		"service_worker": "./dist/background.js"
+	},
+	"manifest_version": 3
+}
