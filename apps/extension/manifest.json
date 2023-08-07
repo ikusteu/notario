@@ -2,7 +2,7 @@
 	"name": "Notario extension",
 	"version": "1.0",
 	"description": "Takes notes",
-	"permissions": ["activeTab", "background", "clipboardRead", "storage"],
+	"permissions": ["activeTab", "background", "contextMenus", "clipboardRead", "storage"],
 	"default_locale": "en",
 	"content_scripts": [
 		{
