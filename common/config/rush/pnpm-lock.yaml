@@ -9,13 +9,17 @@ importers:
     specifiers:
       '@crxjs/vite-plugin': ~1.0.14
       '@types/chrome': ~0.0.243
+      '@types/pouchdb': ~6.4.0
       pouchdb: ~8.0.1
+      rollup-plugin-node-polyfills: ~0.2.1
       vite: ~4.4.8
     dependencies:
       pouchdb: 8.0.1
     devDependencies:
       '@crxjs/vite-plugin': 1.0.14_vite@4.4.8
       '@types/chrome': 0.0.243
+      '@types/pouchdb': 6.4.0
+      rollup-plugin-node-polyfills: 0.2.1
       vite: 4.4.8
 
   ../../apps/web-client:

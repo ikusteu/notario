@@ -1,73 +1,78 @@
-// #region db-connection
-function connect() {
-	// Returning a promise to simulate the async nature of db connection
-	return new Promise<void>((resolve) => {
-		setTimeout(() => {
-			// Create a right-click menu entry
-			chrome.contextMenus.create({
-				id: "add-note",
-				title: "Add Note",
+import PouchDB from "pouchdb";
+
+// #region context-menus
+function createContextMenu(props: chrome.contextMenus.CreateProperties) {
+	return new Promise<void>((resolve) => chrome.contextMenus.create(props, resolve));
+}
+
+async function setUpMenus() {
+	await createContextMenu({
+		id: "add-note",
+		title: "Add Note",
+		contexts: ["selection"]
+	});
+
+	await Promise.all(
+		sections.map((s) =>
+			createContextMenu({
+				...s,
+				parentId: "add-note",
 				contexts: ["selection"]
-			});
-
-			// Add sections to the right-click menu entry
-			sections.forEach((s) =>
-				chrome.contextMenus.create({
-					...s,
-					parentId: "add-note",
-					contexts: ["selection"]
-				})
-			);
-
-			return resolve();
-		}, 1000);
-	});
+			})
+		)
+	);
 }
 
-function disconnect() {
-	return new Promise<void>((resolve) => {
-		chrome.contextMenus.removeAll(resolve);
-	});
+function tearDownMenus() {
+	return new Promise<void>((resolve) => chrome.contextMenus.removeAll(resolve));
 }
+// #endregion context-menus
+
+// #region db-connection
+let db: PouchDB.Database | null = null;
+
+async function connect() {
+	chrome.action.disable();
+	try {
+		db = new PouchDB("http://admin:admin@127.0.0.1:4000/notario");
+		await db.info();
+		await setUpMenus();
+		await turnOn();
+	} catch {
+		await tearDownMenus();
+		await turnOff();
+	} finally {
+		chrome.action.enable();
+	}
+}
+
+async function disconnect() {
+	await tearDownMenus();
+	db = null;
+	isOn = false;
+}
+
+chrome.action.onClicked.addListener(() => {
+	if (isOn) {
+		disconnect();
+	} else {
+		connect();
+	}
+});
 // #endregion db-connection
 
 // #region on-off state
 let isOn = false;
 
 async function turnOn() {
-	// Disable the action while attempting to turn on
-	chrome.action.disable();
-
-	await connect();
-
-	isOn = true;
-
-	// Change the icon
 	chrome.action.setIcon({ path: onIcon });
-	chrome.action.enable();
+	isOn = true;
 }
 
 async function turnOff() {
-	chrome.action.disable();
-
-	await disconnect();
-
-	isOn = false;
-
-	// Change the icon
 	chrome.action.setIcon({ path: offIcon });
-	chrome.action.enable();
+	isOn = false;
 }
-
-chrome.action.onClicked.addListener(() => {
-	chrome.action.disable();
-
-	if (isOn) {
-		turnOff();
-	} else {
-		turnOn();
-	}
-});
 // #endregion on-off state
 
 // #region add-note
@@ -76,21 +81,24 @@ interface Note {
 	source: string;
 }
 
-const noteStore: Record<string, Note[]> = {
-	abstract: [],
-	main: [],
-	summary: []
-};
+function addNote(note: Note) {
+	if (db === null) {
+		return;
+	}
+
+	return db.put({
+		_id: String(new Date()),
+		...note
+	});
+}
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
 	if (info.parentMenuItemId === "add-note") {
-		noteStore[info.menuItemId].push({
+		addNote({
 			content: info.selectionText || "",
 			source: tab?.title || ""
 		});
 	}
-
-	console.log(sections);
 });
 // #endregion add-note
 

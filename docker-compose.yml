@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  notes:
+    image: ghcr.io/librocco/couchdb:3.2.2-base
+    container_name: notario-notes
+    ports:
+      - 4000:5984
+    volumes:
+      - notario-db:/var/lib/couchdb
+
+volumes:
+  notario-db:
