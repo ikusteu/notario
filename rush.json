@@ -386,12 +386,16 @@
 			"projectFolder": "apps/web-client"
 		},
 		{
+			"packageName": "@notario/extension",
+			"projectFolder": "apps/extension"
+		},
+		{
 			"packageName": "@notario/scaffold",
 			"projectFolder": "pkg/scaffold"
 		},
 		{
-			"packageName": "@notario/extension",
-			"projectFolder": "apps/extension"
+			"packageName": "@notario/db",
+			"projectFolder": "pkg/db"
 		}
 	]
 }
