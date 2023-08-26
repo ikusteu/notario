@@ -1,3 +1,6 @@
+export const EMPTY = Symbol("EMPTY");
+export type PosiblyEmpty<T> = T | typeof EMPTY;
+
 export const waitFor = (cb: () => void | Promise<void>, timeout = 2000) => {
 	return new Promise<void>((resolve, reject) => {
 		let error: any = null;

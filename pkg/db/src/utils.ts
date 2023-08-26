@@ -101,3 +101,17 @@ const newChangeEmitter = <M extends Record<string, unknown> = Record<string, unk
 		include_docs: true,
 		filter: (doc) => doc._id === id
 	});
+
+export const processId = (prefix: string, id: string) => {
+	// If id is a single segment, just prefix it
+	if (id.split("/").length === 1) {
+		return [prefix, id].join("/");
+	}
+
+	// If id has more than one segment, make sure it's namespaced under the desired prefix
+	if (id.startsWith(prefix)) {
+		return id;
+	}
+
+	throw new Error("Id namespace mismatch:" + `  expected id to be prefixed with: ${prefix}` + `  id: ${id}`);
+};
