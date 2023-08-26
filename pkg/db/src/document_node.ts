@@ -16,6 +16,7 @@ interface DocumentNodeInterface<D extends {}> {
 	update(cb: (data: CouchDocument<Required<D>>) => Partial<D>, opts?: GetOpts): Promise<DocumentNodeInterface<D>>;
 	delete(): Promise<void>;
 	exists(): Promise<boolean>;
+	stream(): Observable<CouchDocument<D>>;
 }
 
 export class DocumentNode<D extends {}> implements DocumentNodeInterface<D> {
@@ -46,7 +47,7 @@ export class DocumentNode<D extends {}> implements DocumentNodeInterface<D> {
 
 		firstValueFrom(this.#stream).then(() => this.#initialised.next(true));
 
-		this.#stream.subscribe(this.updateData);
+		this.#stream.subscribe((d) => this.updateData(d));
 	}
 
 	private updateField(field: string, value?: any) {
@@ -97,7 +98,9 @@ export class DocumentNode<D extends {}> implements DocumentNodeInterface<D> {
 	set(data: Partial<D>): Promise<DocumentNode<D>> {
 		return runAfterCondition(async () => {
 			const { _id, _rev } = this.data;
-			await this.#db.put({ ...this.#zeroValues, ...data, _rev, _id });
+			const putPayload = { ...this.#zeroValues, ...data, _rev, _id };
+			const { rev } = await this.#db.put(putPayload);
+			this.updateData({ ...putPayload, _rev: rev });
 			return this;
 		}, this.#initialised);
 	}
@@ -111,5 +114,9 @@ export class DocumentNode<D extends {}> implements DocumentNodeInterface<D> {
 
 	async delete() {
 		return;
+	}
+
+	stream() {
+		return this.#stream;
 	}
 }
