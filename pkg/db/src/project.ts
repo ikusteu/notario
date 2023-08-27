@@ -2,6 +2,7 @@ import { Observable } from "rxjs";
 import { v4 as uuid } from "uuid";
 
 import { DocumentNode } from "./document_node";
+import { Section, SectionInterface } from "./section";
 import { CouchDocument, NotarioDocument } from "./types";
 
 import { processId } from "./utils";
@@ -16,7 +17,7 @@ export type ProjectData = NotarioDocument<
 
 export interface ProjectInterface {
 	id(): string;
-	create(name: string): Promise<ProjectInterface>;
+	create(): Promise<ProjectInterface>;
 	get(): Promise<CouchDocument<ProjectData> | undefined>;
 	setName(name: string): Promise<ProjectInterface>;
 	stream(): {
@@ -24,7 +25,7 @@ export interface ProjectInterface {
 	};
 	setSections(sections: string[]): Promise<ProjectInterface>;
 	addSection(section: string): Promise<ProjectInterface>;
-	// section(id: string): SectionInterface;
+	section(id: string): SectionInterface;
 }
 
 const projectZeroValues: Required<ProjectData> = {
@@ -69,6 +70,10 @@ export class Project implements ProjectInterface {
 	async addSection(section: string): Promise<ProjectInterface> {
 		await this.#internal.update((data) => ({ ...data, sections: [...new Set(data.sections).add(section)] }));
 		return this;
+	}
+
+	section(id?: string): SectionInterface {
+		return new Section(this.#db, this, id);
 	}
 
 	stream() {
