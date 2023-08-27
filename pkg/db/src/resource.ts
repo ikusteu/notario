@@ -4,6 +4,7 @@ import { v4 as uuid } from "uuid";
 import { CouchDocument, NotarioDocument } from "./types";
 
 import { DocumentNode } from "./document_node";
+import { Note, NoteInterface } from "./note";
 
 import { processId } from "./utils";
 
@@ -24,6 +25,7 @@ export interface ResourceInterface {
 	setPath(path: string): Promise<ResourceInterface>;
 	setAuthors(authors: string[]): Promise<ResourceInterface>;
 	setYear(year: number): Promise<ResourceInterface>;
+	note(id?: string): NoteInterface;
 	stream(): {
 		doc(): Observable<CouchDocument<ResourceData>>;
 	};
@@ -39,10 +41,12 @@ const resourceZeroValues: Required<ResourceData> = {
 
 export class Resource implements ResourceInterface {
 	#internal: DocumentNode<ResourceData>;
+	#db: PouchDB.Database;
 
 	constructor(db: PouchDB.Database, id?: string) {
 		const _id = processId("resources", id || uuid());
-		this.#internal = new DocumentNode<ResourceData>(db, _id, resourceZeroValues);
+		this.#db = db;
+		this.#internal = new DocumentNode<ResourceData>(this.#db, _id, resourceZeroValues);
 	}
 
 	id() {
@@ -71,6 +75,10 @@ export class Resource implements ResourceInterface {
 	async setYear(year: number) {
 		await this.#internal.update((data) => ({ ...data, year }));
 		return this;
+	}
+
+	note(id?: string) {
+		return new Note(this.#db, this, id);
 	}
 
 	stream() {

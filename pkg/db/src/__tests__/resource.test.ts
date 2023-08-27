@@ -122,4 +122,14 @@ describe("Resource", () => {
 			_id: expect.stringMatching(/^resources\/[a-z0-9-]+$/)
 		});
 	});
+
+	test("should construct a note instance using 'note' method", async () => {
+		const db = getDB();
+		const resource = new Resource(db, "test");
+
+		await resource.create();
+		const note = resource.note("note-1");
+
+		expect(note.id()).toEqual("resources/test/notes/note-1");
+	});
 });
