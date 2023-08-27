@@ -7,6 +7,7 @@ import { DocumentNode } from "./document_node";
 import { ProjectInterface } from "./project";
 
 import { processId } from "./utils";
+import { Subsection, SubsectionInterface } from "./subsection";
 
 export type SectionData = NotarioDocument<
 	"section",
@@ -29,7 +30,7 @@ export interface SectionInterface {
 	stream(): {
 		doc(): Observable<CouchDocument<SectionData>>;
 	};
-	// subsection(id: string): SectionInterface;
+	subsection(id?: string): SubsectionInterface;
 }
 
 const sectionZeroValues: Required<SectionData> = {
@@ -89,9 +90,13 @@ export class Section implements SectionInterface {
 		return this;
 	}
 
-	async addSubsection(section: string) {
-		await this.#internal.update((data) => ({ ...data, subsections: [...new Set(data.subsections).add(section)] }));
+	async addSubsection(subsection: string) {
+		await this.#internal.update((data) => ({ ...data, subsections: [...new Set(data.subsections).add(subsection)] }));
 		return this;
+	}
+
+	subsection(id?: string): SubsectionInterface {
+		return new Subsection(this.#db, this, id);
 	}
 
 	stream() {
