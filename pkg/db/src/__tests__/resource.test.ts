@@ -2,9 +2,9 @@ import { describe, test, expect } from "vitest";
 
 import { CouchDocument } from "@/types";
 
-import { Resource, ResourceData } from "../resource";
+import { ResourceData } from "../resource";
 
-import { getDB } from "../__testUtils__/pouchdb";
+import { getTestDBInterface } from "../__testUtils__/pouchdb";
 import { PosiblyEmpty, EMPTY, waitFor } from "../__testUtils__/misc";
 
 describe("Resource", () => {
@@ -19,8 +19,7 @@ describe("Resource", () => {
 	};
 
 	test("should create a document with zero values for each property on 'create'", async () => {
-		const db = getDB();
-		const resource = new Resource(db, "resource-1");
+		const resource = getTestDBInterface().resource("resource-1");
 
 		await resource.create();
 		const data = await resource.get();
@@ -29,8 +28,7 @@ describe("Resource", () => {
 	});
 
 	test("should update the properties using their respective methods", async () => {
-		const db = getDB();
-		const resource = new Resource(db, "resource-1");
+		const resource = getTestDBInterface().resource("resource-1");
 
 		await resource.create();
 
@@ -63,8 +61,7 @@ describe("Resource", () => {
 	});
 
 	test("should stream document as it gets updated", async () => {
-		const db = getDB();
-		const resource = new Resource(db, "resource-1");
+		const resource = getTestDBInterface().resource("resource-1");
 
 		let data: PosiblyEmpty<CouchDocument<ResourceData>> = EMPTY;
 		resource
@@ -111,8 +108,7 @@ describe("Resource", () => {
 	});
 
 	test("if no id provided, should generate a new uuid", async () => {
-		const db = getDB();
-		const resource = new Resource(db);
+		const resource = getTestDBInterface().resource();
 
 		await resource.create();
 		const data = await resource.get();
@@ -124,8 +120,7 @@ describe("Resource", () => {
 	});
 
 	test("should construct a note instance using 'note' method", async () => {
-		const db = getDB();
-		const resource = new Resource(db, "test");
+		const resource = getTestDBInterface().resource("test");
 
 		await resource.create();
 		const note = resource.note("note-1");

@@ -1,8 +1,9 @@
 import { Observable } from "rxjs";
 import { v4 as uuid } from "uuid";
 
+import type { DatabaseInterface } from "./index";
 import { DocumentNode } from "./document_node";
-import { Section, SectionInterface } from "./section";
+import { newSectionInterface, SectionInterface } from "./section";
 import { CouchDocument, NotarioDocument } from "./types";
 
 import { processId } from "./utils";
@@ -25,7 +26,7 @@ export interface ProjectInterface {
 	};
 	setSections(sections: string[]): Promise<ProjectInterface>;
 	addSection(section: string): Promise<ProjectInterface>;
-	section(id: string): SectionInterface;
+	section(id?: string): SectionInterface;
 }
 
 const projectZeroValues: Required<ProjectData> = {
@@ -34,14 +35,14 @@ const projectZeroValues: Required<ProjectData> = {
 	sections: []
 };
 
-export class Project implements ProjectInterface {
+class Project implements ProjectInterface {
 	#internal: DocumentNode<ProjectData>;
-	#db: PouchDB.Database;
+	#db: DatabaseInterface;
 
-	constructor(db: PouchDB.Database, id?: string) {
+	constructor(db: DatabaseInterface, id?: string) {
 		const _id = processId("projects", id || uuid());
 		this.#db = db;
-		this.#internal = new DocumentNode<ProjectData>(this.#db, _id, projectZeroValues);
+		this.#internal = new DocumentNode<ProjectData>(this.#db._pouch, _id, projectZeroValues);
 	}
 
 	id() {
@@ -73,7 +74,7 @@ export class Project implements ProjectInterface {
 	}
 
 	section(id?: string): SectionInterface {
-		return new Section(this.#db, this, id);
+		return newSectionInterface(this.#db, this, id);
 	}
 
 	stream() {
@@ -82,3 +83,5 @@ export class Project implements ProjectInterface {
 		};
 	}
 }
+
+export const newProjectInterface = (db: DatabaseInterface, id?: string) => new Project(db, id);

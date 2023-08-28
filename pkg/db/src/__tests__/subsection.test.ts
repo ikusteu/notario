@@ -2,10 +2,9 @@ import { describe, test, expect } from "vitest";
 
 import { CouchDocument } from "@/types";
 
-import { Project } from "../project";
 import { SubsectionData } from "../subsection";
 
-import { getDB } from "../__testUtils__/pouchdb";
+import { getTestDBInterface } from "../__testUtils__/pouchdb";
 import { PosiblyEmpty, EMPTY, waitFor } from "../__testUtils__/misc";
 
 describe("Subsection", () => {
@@ -18,8 +17,7 @@ describe("Subsection", () => {
 	};
 
 	test("should create a document with zero values for each property on 'create'", async () => {
-		const db = getDB();
-		const subsection = await new Project(db, "project-1").section("section-1").subsection("subsection-1").create();
+		const subsection = await getTestDBInterface().project("project-1").section("section-1").subsection("subsection-1").create();
 
 		const data = await subsection.get();
 
@@ -27,10 +25,12 @@ describe("Subsection", () => {
 	});
 
 	test("should create a section (if it doesn't exist) and add itself to the section on 'create'", async () => {
-		const db = getDB();
-		await new Project(db, "project-1").section("section-1").subsection("subsection-1").create();
+		const db = getTestDBInterface();
+		const section = db.project("project-1").section("section-1");
 
-		const sectionData = await new Project(db, "project-1").section("section-1").get();
+		await section.subsection("subsection-1").create();
+
+		const sectionData = await section.get();
 		expect(sectionData).toEqual({
 			_id: "projects/project-1/sections/section-1",
 			_rev: expect.any(String),
@@ -42,10 +42,8 @@ describe("Subsection", () => {
 	});
 
 	test("on create, if a section already exists, should not overwrite the data, save for adding itself to the list of subsections", async () => {
-		const db = getDB();
-
 		// Setup
-		const section = await new Project(db, "project-1").section("section-1").create();
+		const section = await getTestDBInterface().project("project-1").section("section-1").create();
 		await section.setName("Introduction");
 		await section.setSubsections([
 			"projects/project-1/sections/section-1/subsections/subsection-1",
@@ -73,8 +71,7 @@ describe("Subsection", () => {
 	});
 
 	test("should update the properties using their respective methods", async () => {
-		const db = getDB();
-		const subsection = await new Project(db, "project-1").section("section-1").subsection("subsection-1").create();
+		const subsection = await getTestDBInterface().project("project-1").section("section-1").subsection("subsection-1").create();
 
 		// Set name
 		await subsection.setName("Introduction");
@@ -104,8 +101,7 @@ describe("Subsection", () => {
 	});
 
 	test("when adding an existing note, noop", async () => {
-		const db = getDB();
-		const subsection = await new Project(db, "project-1").section("section-1").subsection("subsection-1").create();
+		const subsection = await getTestDBInterface().project("project-1").section("section-1").subsection("subsection-1").create();
 
 		// Setup
 		await subsection.setNotes(["note-1", "note-2"]);
@@ -125,8 +121,7 @@ describe("Subsection", () => {
 	});
 
 	test("should stream document as it gets updated", async () => {
-		const db = getDB();
-		const subsection = new Project(db, "project-1").section("section-1").subsection("subsection-1");
+		const subsection = getTestDBInterface().project("project-1").section("section-1").subsection("subsection-1");
 
 		let data: PosiblyEmpty<CouchDocument<SubsectionData>> = EMPTY;
 		subsection
@@ -169,8 +164,7 @@ describe("Subsection", () => {
 	});
 
 	test("if no id provided, should generate a new uuid", async () => {
-		const db = getDB();
-		const subsection = new Project(db, "project-1").section("section-1").subsection();
+		const subsection = getTestDBInterface().project("project-1").section("section-1").subsection();
 
 		await subsection.create();
 		const data = await subsection.get();

@@ -2,9 +2,9 @@ import { describe, test, expect } from "vitest";
 
 import { CouchDocument } from "@/types";
 
-import { Project, ProjectData } from "../project";
+import { ProjectData } from "../project";
 
-import { getDB } from "../__testUtils__/pouchdb";
+import { getTestDBInterface } from "../__testUtils__/pouchdb";
 import { PosiblyEmpty, EMPTY, waitFor } from "../__testUtils__/misc";
 
 describe("Project", () => {
@@ -17,8 +17,7 @@ describe("Project", () => {
 	};
 
 	test("should create a document with zero values for each property on 'create'", async () => {
-		const db = getDB();
-		const project = new Project(db, "project-1");
+		const project = getTestDBInterface().project("project-1");
 
 		await project.create();
 		const data = await project.get();
@@ -27,8 +26,7 @@ describe("Project", () => {
 	});
 
 	test("should update the properties using their respective methods", async () => {
-		const db = getDB();
-		const project = new Project(db, "project-1");
+		const project = getTestDBInterface().project("project-1");
 
 		await project.create();
 
@@ -60,8 +58,7 @@ describe("Project", () => {
 	});
 
 	test("should stream document as it gets updated", async () => {
-		const db = getDB();
-		const project = new Project(db, "project-1");
+		const project = getTestDBInterface().project("project-1");
 
 		let data: PosiblyEmpty<CouchDocument<ProjectData>> = EMPTY;
 		project
@@ -107,8 +104,7 @@ describe("Project", () => {
 	});
 
 	test("when adding a duplicate section, noop", async () => {
-		const db = getDB();
-		const project = new Project(db, "project-1");
+		const project = getTestDBInterface().project("project-1");
 
 		// Setup
 		await project.create();
@@ -129,8 +125,7 @@ describe("Project", () => {
 	});
 
 	test("if no id provided, should generate a new uuid", async () => {
-		const db = getDB();
-		const project = new Project(db);
+		const project = getTestDBInterface().project();
 
 		await project.create();
 		const data = await project.get();

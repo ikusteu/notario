@@ -4,6 +4,7 @@ import { v4 as uuid } from "uuid";
 
 import { CouchDocument, NotarioDocument } from "./types";
 
+import { DatabaseInterface } from "./index";
 import { DocumentNode } from "./document_node";
 import { SectionInterface } from "./section";
 
@@ -35,17 +36,17 @@ const subsectionZeroValues: Required<SubsectionData> = {
 	notes: []
 };
 
-export class Subsection implements SubsectionInterface {
-	#db: PouchDB.Database;
+class Subsection implements SubsectionInterface {
+	#db: DatabaseInterface;
 	#section: SectionInterface;
 
 	#internal: DocumentNode<SubsectionData>;
 
-	constructor(db: PouchDB.Database, section: SectionInterface, id?: string) {
+	constructor(db: DatabaseInterface, section: SectionInterface, id?: string) {
 		this.#db = db;
 		this.#section = section;
 		const _id = processId(`${section.id()}/subsections`, id || uuid());
-		this.#internal = new DocumentNode<SubsectionData>(this.#db, _id, subsectionZeroValues);
+		this.#internal = new DocumentNode<SubsectionData>(this.#db._pouch, _id, subsectionZeroValues);
 	}
 
 	id() {
@@ -86,3 +87,6 @@ export class Subsection implements SubsectionInterface {
 		};
 	}
 }
+
+export const newSubsectionInterface = (db: DatabaseInterface, section: SectionInterface, id?: string): SubsectionInterface =>
+	new Subsection(db, section, id);

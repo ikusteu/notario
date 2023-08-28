@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 
 import { Resource } from "../resource";
 
-import { getDB } from "../__testUtils__/pouchdb";
+import { getTestDBInterface } from "../__testUtils__/pouchdb";
 
 describe("Note", async () => {
 	const defaultData = {
@@ -13,8 +13,7 @@ describe("Note", async () => {
 	};
 
 	test("should create a document with zero values for each property on 'create'", async () => {
-		const db = getDB();
-		const note = await new Resource(db, "resource-1").note("note-1").create();
+		const note = await getTestDBInterface().resource("resource-1").note("note-1").create();
 
 		await note.create();
 		const data = await note.get();
@@ -24,10 +23,10 @@ describe("Note", async () => {
 
 	test("should create a resource (if one doesn't exist) add itself to resource's notes on 'create'", async () => {
 		// Setup
-		const db = getDB();
-		await new Resource(db, "resource-1").note("note-1").create();
+		const resource = getTestDBInterface().resource("resource-1");
+		await resource.note("note-1").create();
 
-		const resourceData = await new Resource(db, "resource-1").get();
+		const resourceData = await resource.get();
 
 		expect(resourceData).toEqual({
 			_id: "resources/resource-1",
@@ -41,8 +40,7 @@ describe("Note", async () => {
 	});
 
 	test("should update the properties using their respective methods", async () => {
-		const db = getDB();
-		const note = await new Resource(db, "resource-1").note("note-1").create();
+		const note = await getTestDBInterface().resource("resource-1").note("note-1").create();
 
 		// Set content
 		const content =
@@ -56,8 +54,7 @@ describe("Note", async () => {
 	});
 
 	test("if no id provided, should generate a new uuid", async () => {
-		const db = getDB();
-		const note = new Resource(db, "resource-1").note();
+		const note = getTestDBInterface().resource("resource-1").note();
 
 		await note.create();
 		const data = await note.get();

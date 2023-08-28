@@ -3,11 +3,12 @@ import { v4 as uuid } from "uuid";
 
 import { CouchDocument, NotarioDocument } from "./types";
 
+import { DatabaseInterface } from "./index";
 import { DocumentNode } from "./document_node";
 import { ProjectInterface } from "./project";
 
 import { processId } from "./utils";
-import { Subsection, SubsectionInterface } from "./subsection";
+import { newSubsectionInterface, SubsectionInterface } from "./subsection";
 
 export type SectionData = NotarioDocument<
 	"section",
@@ -40,17 +41,17 @@ const sectionZeroValues: Required<SectionData> = {
 	subsections: []
 };
 
-export class Section implements SectionInterface {
-	#db: PouchDB.Database;
+class Section implements SectionInterface {
+	#db: DatabaseInterface;
 	#project: ProjectInterface;
 
 	#internal: DocumentNode<SectionData>;
 
-	constructor(db: PouchDB.Database, project: ProjectInterface, id?: string) {
+	constructor(db: DatabaseInterface, project: ProjectInterface, id?: string) {
 		this.#db = db;
 		this.#project = project;
 		const _id = processId(`${project.id()}/sections`, id || uuid());
-		this.#internal = new DocumentNode<SectionData>(this.#db, _id, sectionZeroValues);
+		this.#internal = new DocumentNode<SectionData>(this.#db._pouch, _id, sectionZeroValues);
 	}
 
 	id() {
@@ -96,7 +97,7 @@ export class Section implements SectionInterface {
 	}
 
 	subsection(id?: string): SubsectionInterface {
-		return new Subsection(this.#db, this, id);
+		return newSubsectionInterface(this.#db, this, id);
 	}
 
 	stream() {
@@ -105,3 +106,5 @@ export class Section implements SectionInterface {
 		};
 	}
 }
+
+export const newSectionInterface = (db: DatabaseInterface, project: ProjectInterface, id?: string) => new Section(db, project, id);

@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 
 import { DocumentNode } from "../document_node";
 
-import { getDB } from "../__testUtils__/pouchdb";
+import { getTestPouch } from "../__testUtils__/pouchdb";
 import { waitFor } from "../__testUtils__/misc";
 
 const EMPTY = Symbol("EMPTY");
@@ -11,7 +11,7 @@ type PossiblyEmpty<T> = T | typeof EMPTY;
 
 describe("DocumentNode", () => {
 	test("standard api", async () => {
-		const db = getDB();
+		const db = getTestPouch();
 		type TestDoc = {
 			foo: string;
 			num: number;
@@ -60,7 +60,7 @@ describe("DocumentNode", () => {
 	});
 
 	test("stream", async () => {
-		const db = getDB();
+		const db = getTestPouch();
 		type TestDoc = {
 			foo: string;
 			num: number;

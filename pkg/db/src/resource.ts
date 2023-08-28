@@ -7,6 +7,7 @@ import { DocumentNode } from "./document_node";
 import { Note, NoteInterface } from "./note";
 
 import { processId } from "./utils";
+import { DatabaseInterface } from ".";
 
 export type ResourceData = NotarioDocument<
 	"resource",
@@ -87,3 +88,5 @@ export class Resource implements ResourceInterface {
 		};
 	}
 }
+
+export const newResourceInterface = (db: DatabaseInterface, id?: string) => new Resource(db._pouch, id);
