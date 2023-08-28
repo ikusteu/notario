@@ -1,0 +1,69 @@
+{
+	"name": "@notario/ui",
+	"version": "0.0.1",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "svelte-package -o dist",
+		"build:watch": "svelte-package -o dist -w",
+		"typecheck": "svelte-check --tsconfig ./tsconfig.json --threshold warning --diagnostic-sources js,svelte",
+		"lint": "prettier --check --plugin-search-dir=. . && eslint .",
+		"lint:strict": "prettier --check --plugin-search-dir=. . && eslint . --max-warnings=0",
+		"test": "vitest",
+		"format": "prettier --write --plugin-search-dir=. .",
+		"postinstall": "svelte-kit sync",
+		"story:dev": "histoire dev",
+		"story:build": "histoire build",
+		"story:preview": "histoire preview"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/kit": "~1.15.7",
+		"@sveltejs/package": "^2.0.0",
+		"@tailwindcss/forms": "~0.5.3",
+		"@testing-library/svelte": "~3.1.3",
+		"@typescript-eslint/eslint-plugin": "~5.27.0",
+		"@typescript-eslint/parser": "~5.27.0",
+		"eslint": "~8.16.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-svelte3": "^4.0.0",
+		"postcss": "~8.4.13",
+		"prettier": "~2.7.1",
+		"prettier-plugin-svelte": "^2.7.0",
+		"svelte": "~3.58.0",
+		"svelte-check": "^3.0.0",
+		"svelte-loader": "^3.1.2",
+		"svelte-preprocess": "^5.0.3",
+		"tailwindcss": "~3.2.4",
+		"tslib": "^2.3.1",
+		"typescript": "^4.8.4",
+		"vite": "~4.0.0",
+		"vitest": "~0.21.1",
+		"svelte2tsx": "~0.6.8",
+		"@types/uuid": "~9.0.0",
+		"histoire": "~0.15.8",
+		"@histoire/plugin-svelte": "~0.15.8",
+		"@histoire/controls": "~0.11.3",
+		"autoprefixer": "~10.4.13",
+		"lucide-svelte": "^0.210.0",
+		"jsdom": "~21.1.1",
+		"@testing-library/dom": "~8.20.0",
+		"@testing-library/jest-dom": "~5.16.5",
+		"@testing-library/user-event": "~14.4.3",
+		"@types/testing-library__jest-dom": "~5.14.5",
+		"svelte-fragment-component": "~1.2.0",
+		"svelte-htm": "~1.2.0",
+		"svelte-transition": "~0.0.7"
+	},
+	"peerDependencies": {
+		"lucide-svelte": "^0.210.0",
+		"svelte": "~3.58.0"
+	},
+	"dependencies": {
+		"uuid": "~9.0.0"
+	},
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"svelte": "./dist/index.js"
+}

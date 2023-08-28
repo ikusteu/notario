@@ -396,6 +396,10 @@
 		{
 			"packageName": "@notario/db",
 			"projectFolder": "pkg/db"
+		},
+		{
+			"packageName": "@notario/ui",
+			"projectFolder": "pkg/ui"
 		}
 	]
 }
