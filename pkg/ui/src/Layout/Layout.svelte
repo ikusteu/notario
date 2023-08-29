@@ -55,7 +55,7 @@
 			</section>
 		{/if}
 
-		<section class="flex h-full w-full flex-col justify-start gap-y-8 overflow-auto py-8">
+		<section class="w-full py-8">
 			<slot />
 		</section>
 	</main>
