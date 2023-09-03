@@ -22,11 +22,11 @@
 	const toggleOpenSidebar = () => (sidebarOpen = !sidebarOpen);
 </script>
 
-<div class="flex h-screen flex-col">
+<div class="flex h-screen flex-col overflow-hidden">
 	<div class="basis-[5%]">
 		<header class="flex h-[4.5rem] w-full items-center justify-start border-b border-sky-900 bg-gray-900 px-4 py-4">
 			<button
-				class="flex h-10 w-10 items-center justify-center rounded-sm border border-gray-900 text-white {sidebarOpen && 'bg-gray-600'}"
+				class="flex h-10 w-10 items-center justify-center rounded-sm text-white {sidebarOpen && 'bg-gray-600'}"
 				on:click={toggleOpenSidebar}
 			>
 				<Menu />
@@ -34,7 +34,7 @@
 		</header>
 	</div>
 
-	<main class="flex basis-[95%] items-stretch divide-x divide-gray-300 overflow-y-auto">
+	<main class="flex basis-[95%] items-stretch divide-x divide-gray-300 overflow-hidden">
 		{#if sidebarOpen}
 			<section
 				id="sidebar-section"
@@ -55,8 +55,18 @@
 			</section>
 		{/if}
 
-		<section class="flex h-full w-full flex-col justify-start gap-y-8 overflow-auto py-8">
-			<slot />
-		</section>
+		<div class="flex h-full w-full flex-col overflow-hidden">
+			<slot name="content-header" />
+
+			<section class="w-full overflow-auto border">
+				<slot />
+			</section>
+
+			{#if $$slots["action-buttons"]}
+				<section class="flex w-full items-center justify-end gap-x-4 border bg-white px-12 py-4">
+					<slot name="action-buttons" />
+				</section>
+			{/if}
+		</div>
 	</main>
 </div>
