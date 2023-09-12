@@ -5,6 +5,8 @@
 	import { NavButtonGroup } from "$lib/NavButtonGroup";
 	import { Layout } from "$lib/Layout";
 
+	import { moveCopyStore } from "../actions/copyMoveNotes";
+
 	// #region temp
 	import { notes } from "../data";
 
@@ -31,47 +33,22 @@
 		{ id: "res", name: "Results", notes },
 		{ id: "conc", name: "Conclusion", notes }
 	];
+	const noteMap = new Map([
+		["intro", new Set(notes.map(({ id }) => id))],
+		["met", new Set([""])],
+		["res", new Set(notes.map(({ id }) => id))],
+		["conc", new Set(notes.map(({ id }) => id))]
+	]);
 
 	// #endregion temp
 
-	let copyFrom = "";
-	let copyTo = "";
-	let notesToCopy = new Set<string>();
-	let copying = false;
-
-	const noteSelectLookup = new Map<string, string>();
-
-	const select = (node: HTMLSelectElement, id: string) => {
-		noteSelectLookup.set(id, node.value);
-
-		const handleChange = (e: Event) => {
-			const value = (e.target as HTMLSelectElement).value;
-			noteSelectLookup.set(id, value);
-		};
-
-		node.addEventListener("change", handleChange);
-
-		return {
-			destroy() {
-				node.removeEventListener("change", handleChange);
-			}
-		};
-	};
-
-	const initCopy = (sectionId: string) => () => {
-		copyFrom = sectionId;
-		copyTo = noteSelectLookup.get(sectionId)!;
-		copying = true;
-	};
-	const resetCopy = () => {
-		copyFrom = "";
-		copyTo = "";
-		copying = false;
-		notesToCopy.clear();
-	};
-
 	const views = ["Sections", "Subsections", "Text"];
 	let view = "Sections";
+
+	const copyFrom = "";
+	const copyTo = "";
+
+	const { active, ...moveCopy } = moveCopyStore({ noteMap });
 </script>
 
 <Layout sidebarOpen {projects} {resources}>
@@ -81,16 +58,15 @@
 		<Button color="light-gray">New Section</Button>
 	</section>
 
-	<div class="overflow-auto px-8 {copying && 'bg-gray-200/50'}">
+	<div class="overflow-auto px-8 {false && 'bg-gray-200/50'}">
 		{#each sections as { id, name, notes }}
 			{@const otherSections = sections.filter((s) => s.id !== id)}
 
-			<ProjectSection {name} disabled={copying && ![copyFrom, copyTo].includes(id)}>
+			<ProjectSection {name}>
 				<svelte:fragment slot="actions">
-					{#if !copying}
+					{#if !$active}
 						<div class="">
 							<select
-								use:select={id}
 								class="flex h-10 cursor-pointer items-center justify-center rounded border px-4 focus:outline-none active:outline-none"
 							>
 								{#each otherSections as { id, name }}
@@ -98,13 +74,16 @@
 								{/each}
 							</select>
 						</div>
-						<Button on:click={initCopy(id)} color="light-gray">Copy</Button>
+						<button
+							use:moveCopy.initCopyButton={id}
+							class="rounded bg-gray-200 px-4 py-1.5 text-lg text-gray-700 hover:bg-gray-300 active:bg-gray-200">Copy</button
+						>
 					{/if}
 				</svelte:fragment>
 
 				<svelte:fragment slot="notes">
 					{#each notes as note}
-						<NoteCard active={copying && notesToCopy.has(note.id)} clickable={copying} {...note} />
+						<NoteCard action={moveCopy.entry} sectionId={id} {...note} />
 					{/each}
 				</svelte:fragment>
 			</ProjectSection>
@@ -112,9 +91,13 @@
 	</div>
 
 	<svelte:fragment slot="action-buttons">
-		{#if copying}
-			<Button on:click={resetCopy} color="red">Cancel</Button>
-			<Button on:click={() => (copying = true)} color="green">Commit</Button>
+		{#if $active}
+			<button use:moveCopy.resetButton class="rounded bg-red-300 px-4 py-1.5 text-lg text-white hover:bg-red-400 active:bg-red-300"
+				>Cancel</button
+			>
+			<button use:moveCopy.commitButton class="rounded bg-green-400 px-4 py-1.5 text-lg text-white hover:bg-green-500 active:bg-green-400"
+				>Commit</button
+			>
 		{/if}
 	</svelte:fragment>
 </Layout>

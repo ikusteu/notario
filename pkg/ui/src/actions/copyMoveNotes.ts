@@ -130,10 +130,13 @@ export interface DestinationPickerAction {
 	(node: HTMLSelectElement, from: string, params: DestinationPickerActionParams): { destroy: () => void };
 }
 export interface ResetButtonAction {
-	(node: HTMLButtonElement): { destroy: () => void };
+	(node?: HTMLButtonElement): { destroy: () => void };
+}
+export interface CommitButtonAction {
+	(node?: HTMLButtonElement): { destroy: () => void };
 }
 export interface InitButtonAction {
-	(node: HTMLButtonElement, from: string): { destroy: () => void };
+	(node?: HTMLButtonElement, from?: string): { destroy: () => void };
 }
 
 const createActionElementActions = (internal: CopyMoveInternal) => {
@@ -154,36 +157,39 @@ const createActionElementActions = (internal: CopyMoveInternal) => {
 		);
 
 	const resetButton: ResetButtonAction = (node: HTMLButtonElement) => composeDestroy(applyDestroyListeners(node)(click(internal.reset)));
+	const commitButton: CommitButtonAction = (node: HTMLButtonElement) => composeDestroy(applyDestroyListeners(node)(click(internal.commit)));
 
-	const initCopyButton: InitButtonAction = (node: HTMLButtonElement, from: string) =>
+	const initCopyButton: InitButtonAction = (node, from = "") =>
 		composeDestroy(applyDestroyListeners(node)(click(() => internal.initCopy(from, getFromTo(from)))));
 
-	const initMoveButton: InitButtonAction = (node: HTMLButtonElement, from: string) =>
+	const initMoveButton: InitButtonAction = (node, from = "") =>
 		composeDestroy(applyDestroyListeners(node)(click(() => internal.initMove(from, getFromTo(from)))));
 
 	return {
 		destinationPicker,
-		resetButton,
 		initCopyButton,
-		initMoveButton
+		initMoveButton,
+		resetButton,
+		commitButton
 	};
 };
 // #endregion action-elements
 
 // #region style-elements
 interface ContainerActionParams {
-	highlightable: boolean;
+	sectionId: string;
+	highlightable?: boolean;
 	highlight?: (v: boolean) => void;
 	disable?: (v: boolean) => void;
 }
 
 export interface ContainerAction {
-	(node: HTMLElement, sectionId: string, params: ContainerActionParams): { destroy: () => void };
+	(node?: HTMLElement, params?: ContainerActionParams): { destroy: () => void };
 }
 
 const createContainerAction =
 	(internal: CopyMoveInternal): ContainerAction =>
-	(_, sectionId, { highlightable = false, highlight, disable }) =>
+	(_, { sectionId, highlightable, highlight, disable } = { sectionId: "", highlightable: false }) =>
 		composeDestroy(
 			// Highlight
 			subscribeCondition([internal.dest, internal.active], ([dest, active]) => highlightable && active && dest === sectionId, highlight),
@@ -196,20 +202,23 @@ const createContainerAction =
 		);
 
 interface EntryActionParams {
+	sectionId: string;
+	id: string;
 	select?: (v: boolean) => void;
 	highlight?: (v: boolean) => void;
 	disable?: (v: boolean) => void;
+	interactive?: (v: boolean) => void;
 }
 
 export interface EntryAction {
-	(node: HTMLElement, sectionId: string, id: string, params: EntryActionParams): { destroy: () => void };
+	(node?: HTMLElement, params?: EntryActionParams): { destroy: () => void };
 }
 export interface RemoveEntryButtonAction {
-	(node: HTMLButtonElement, id: string): { destroy: () => void };
+	(node?: HTMLButtonElement, id?: string): { destroy: () => void };
 }
 
 const createnEntryActions = (internal: CopyMoveInternal) => {
-	const entry: EntryAction = (node, sectionId, id, { select, highlight, disable }) =>
+	const entry: EntryAction = (node, { id, sectionId, select, highlight, disable, interactive } = { id: "", sectionId: "" }) =>
 		composeDestroy(
 			// Select
 			subscribeCondition(
@@ -229,6 +238,12 @@ const createnEntryActions = (internal: CopyMoveInternal) => {
 				([src, dest, destIncludes]) => ![src, dest].includes(sectionId) || destIncludes(id),
 				disable
 			),
+			// Interactive
+			subscribeCondition(
+				[internal.src, internal.destIncludes],
+				([src, destIncludes]) => src === sectionId && !destIncludes(id),
+				interactive
+			),
 			applyDestroyListeners(node)(
 				applyIf(
 					[internal.src, internal.destIncludes],
@@ -238,7 +253,7 @@ const createnEntryActions = (internal: CopyMoveInternal) => {
 			)
 		);
 
-	const removeEntryButton: RemoveEntryButtonAction = (node, id) =>
+	const removeEntryButton: RemoveEntryButtonAction = (node, id = "") =>
 		composeDestroy(applyDestroyListeners(node)(click(() => internal.removeSelected(id))));
 
 	return { entry, removeEntryButton };
@@ -302,6 +317,7 @@ const applyIf =
 interface MoveCopyActions {
 	destinationPicker: DestinationPickerAction;
 	resetButton: ResetButtonAction;
+	commitButton: CommitButtonAction;
 	initCopyButton: InitButtonAction;
 	initMoveButton: InitButtonAction;
 	container: ContainerAction;
@@ -309,7 +325,7 @@ interface MoveCopyActions {
 	removeEntryButton: RemoveEntryButtonAction;
 }
 
-type MoveCopyStore = Pick<CopyMoveInternal, "updateElementMap" | "updateSections"> & MoveCopyActions;
+type MoveCopyStore = Pick<CopyMoveInternal, "updateElementMap" | "updateSections" | "active"> & MoveCopyActions;
 
 export const moveCopyStore = (params: Params): MoveCopyStore => {
 	const internal = createCopyMoveInternal(params);
@@ -317,6 +333,7 @@ export const moveCopyStore = (params: Params): MoveCopyStore => {
 	return {
 		updateSections: internal.updateSections,
 		updateElementMap: internal.updateElementMap,
+		active: internal.active,
 		...createActionElementActions(internal),
 		container: createContainerAction(internal),
 		...createnEntryActions(internal)
