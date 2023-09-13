@@ -7,18 +7,23 @@
 	export let highlighted = false;
 </script>
 
-<ProjectRow {disabled}>
-	<div class="relative col-span-3 pr-6">
+<ProjectRow class={(disabled || highlighted) && "bg-gray-200/50"}>
+	<div class="relative col-span-3 bg-white pr-6">
 		<p class="mb-4 text-xl">{name}</p>
 		<div class="flex items-center justify-between">
 			<slot name="actions" />
 		</div>
-		{#if highlighted}
+		{#if disabled || highlighted}
 			<div class="absolute left-0 top-0 right-0 bottom-0 bg-gray-200/50" />
 		{/if}
 	</div>
 
-	<div class="col-span-9 pl-6 {highlighted && 'rounded-lg ring-2 ring-green-300'}">
-		<slot name="notes" />
+	<div class="relative col-span-9 px-6 {highlighted && 'rounded-lg bg-white ring-4 ring-green-300'}">
+		<div>
+			<slot name="notes" />
+		</div>
+		{#if disabled}
+			<div class="absolute left-0 top-0 right-0 bottom-0 bg-opacity-0" />
+		{/if}
 	</div>
 </ProjectRow>

@@ -27,7 +27,7 @@
 	</Hst.Variant>
 	<Hst.Variant title="Outlined">
 		<div class="p-4">
-			<NoteCard outlined {...note} />
+			<NoteCard highlighted {...note} />
 		</div>
 	</Hst.Variant>
 	<Hst.Variant title="Active">
