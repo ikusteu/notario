@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Layout, NavButtonGroup, Button, ProjectSection, NoteCard } from "@notario/ui";
+	import { Layout, NavButtonGroup, ProjectSection, NoteCard } from "@notario/ui";
 
 	import { projects, resources, views, sections } from "./data";
 
@@ -49,7 +49,7 @@
 	<section slot="content-header" class="flex w-full justify-between border-b px-8 pt-8 pb-16">
 		<h1 class="text-2xl">Project</h1>
 		<NavButtonGroup options={views} current="Sections" />
-		<Button color="light-gray">New Section</Button>
+		<button color="light-gray">New Section</button>
 	</section>
 
 	<div class="overflow-auto px-8 {copying && 'bg-gray-200/50'}">
@@ -69,7 +69,7 @@
 								{/each}
 							</select>
 						</div>
-						<Button on:click={initCopy(id)} color="light-gray">Copy</Button>
+						<button class="button button-light-gray rounded" on:click={initCopy(id)}>Copy</button>
 					{/if}
 				</svelte:fragment>
 
@@ -89,8 +89,8 @@
 
 	<svelte:fragment slot="action-buttons">
 		{#if copying}
-			<Button on:click={resetCopy} color="red">Cancel</Button>
-			<Button on:click={() => (copying = true)} color="green">Commit</Button>
+			<button class="button button-red rounded" on:click={resetCopy}>Cancel</button>
+			<button class="button button-greeen rounded" on:click={() => (copying = true)}>Commit</button>
 		{/if}
 	</svelte:fragment>
 </Layout>

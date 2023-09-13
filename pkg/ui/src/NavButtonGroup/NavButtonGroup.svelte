@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
 
-	import { Button } from "../Button";
-
 	export let options: string[] = [];
 	export let current: string = options[0] || "";
 
@@ -16,8 +14,8 @@
 	<ul class="flex list-none flex-row divide-x divide-gray-700">
 		{#each options as option}
 			<li>
-				<Button color={option === current ? "light-gray" : "gray"} shape="square" border={false} on:click={() => setCurrent(option)}
-					>{option}</Button
+				<button class="button {option === current ? 'button-light-gray' : 'button-gray'}" on:click={() => setCurrent(option)}
+					>{option}</button
 				>
 			</li>
 		{/each}

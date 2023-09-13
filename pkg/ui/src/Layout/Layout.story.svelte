@@ -3,7 +3,6 @@
 
 	import Layout from "./Layout.svelte";
 	import { NavButtonGroup } from "../NavButtonGroup";
-	import { Button } from "../Button";
 
 	export let Hst: Hst;
 
@@ -33,7 +32,7 @@
 		<section slot="content-header" class="flex w-full justify-between border-b px-8 pt-8 pb-16">
 			<h1 class="text-2xl">Project</h1>
 			<NavButtonGroup options={views} bind:current={view} />
-			<Button color="light-gray">New Section</Button>
+			<button class="button button-light-gray">New Section</button>
 		</section>
 	</Layout>
 </Hst.Story>
