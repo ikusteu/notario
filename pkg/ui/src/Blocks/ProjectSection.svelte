@@ -7,14 +7,14 @@
 	export let highlighted = false;
 </script>
 
-<ProjectRow class={(disabled || highlighted) && "bg-gray-200/50"}>
-	<div class="relative col-span-3 bg-white pr-6">
+<ProjectRow class={!disabled && !highlighted && "bg-white"}>
+	<div class="relative col-span-3 pr-6">
 		<p class="mb-4 text-xl">{name}</p>
 		<div class="flex items-center justify-between">
 			<slot name="actions" />
 		</div>
 		{#if disabled || highlighted}
-			<div class="absolute left-0 top-0 right-0 bottom-0 bg-gray-200/50" />
+			<div class="absolute left-0 top-0 right-0 bottom-0 bg-opacity-0" />
 		{/if}
 	</div>
 

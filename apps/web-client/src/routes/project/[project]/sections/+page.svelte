@@ -1,67 +1,39 @@
 <script lang="ts">
-	import { Layout, NavButtonGroup, ProjectSection, NoteCard } from "@notario/ui";
+	import { Layout, NavButtonGroup, ProjectSection, NoteCard, copyMoveStore } from "@notario/ui";
 
-	import { projects, resources, views, sections } from "./data";
+	import { projects, resources, views, sections, notes } from "./data";
 
-	// #region temp-copy
-	let copyFrom = "";
-	let copyTo = "";
+	const noteMap = new Map([
+		["intro", new Set(notes.map(({ id }) => id))],
+		["met", new Set(notes.slice(0, 2).map(({ id }) => id))],
+		["res", new Set(notes.map(({ id }) => id))],
+		["conc", new Set(notes.map(({ id }) => id))]
+	]);
 
-	$: copyToNotes = (sections.find((s) => s.id === copyTo)?.notes ?? []).map(({ id }) => id);
-
-	let notesToCopy = new Set<string>();
-	let copying = false;
-
-	const noteSelectLookup = new Map<string, string>();
-
-	const select = (node: HTMLSelectElement, id: string) => {
-		noteSelectLookup.set(id, node.value);
-
-		const handleChange = (e: Event) => {
-			const value = (e.target as HTMLSelectElement).value;
-			noteSelectLookup.set(id, value);
-		};
-
-		node.addEventListener("change", handleChange);
-
-		return {
-			destroy() {
-				node.removeEventListener("change", handleChange);
-			}
-		};
-	};
-
-	const initCopy = (sectionId: string) => () => {
-		copyFrom = sectionId;
-		copyTo = noteSelectLookup.get(sectionId)!;
-		copying = true;
-	};
-	const resetCopy = () => {
-		copyFrom = "";
-		copyTo = "";
-		copying = false;
-		notesToCopy.clear();
-	};
-	// #endregion temp-copy
+	const { active: copyMoveActive, src, dest, ...copyMove } = copyMoveStore({ noteMap });
 </script>
 
 <Layout {projects} {resources}>
 	<section slot="content-header" class="flex w-full justify-between border-b px-8 pt-8 pb-16">
 		<h1 class="text-2xl">Project</h1>
 		<NavButtonGroup options={views} current="Sections" />
-		<button color="light-gray">New Section</button>
+		<button class="button button-light-gray">New Section</button>
 	</section>
 
-	<div class="overflow-auto px-8 {copying && 'bg-gray-200/50'}">
-		{#each sections as { id, name, notes }}
-			{@const otherSections = sections.filter((s) => s.id !== id)}
+	<div class="overflow-auto px-8 {$copyMoveActive && 'bg-gray-200/50'}">
+		{#each sections as { id: sectionId, name, notes }}
+			{@const otherSections = sections.filter((s) => s.id !== sectionId)}
 
-			<ProjectSection {name} disabled={copying && ![copyFrom, copyTo].includes(id)} highlighted={copying && copyTo === id}>
+			<ProjectSection
+				{name}
+				disabled={$copyMoveActive && ![$src, $dest].includes(sectionId)}
+				highlighted={$copyMoveActive && $dest === sectionId}
+			>
 				<svelte:fragment slot="actions">
-					{#if !copying}
+					{#if !$copyMoveActive}
 						<div class="">
 							<select
-								use:select={id}
+								use:copyMove.destinationPicker={sectionId}
 								class="flex h-10 cursor-pointer items-center justify-center rounded border px-4 focus:outline-none active:outline-none"
 							>
 								{#each otherSections as { id, name }}
@@ -69,18 +41,13 @@
 								{/each}
 							</select>
 						</div>
-						<button class="button button-light-gray rounded" on:click={initCopy(id)}>Copy</button>
+						<button use:copyMove.initCopyButton={sectionId} class="button button-light-gray rounded">Copy</button>
 					{/if}
 				</svelte:fragment>
 
 				<svelte:fragment slot="notes">
 					{#each notes as note}
-						<NoteCard
-							active={copying && notesToCopy.has(note.id)}
-							clickable={copying}
-							disabled={copying && copyToNotes.includes(note.id)}
-							{...note}
-						/>
+						<NoteCard action={copyMove.entry} {sectionId} {...note} />
 					{/each}
 				</svelte:fragment>
 			</ProjectSection>
@@ -88,9 +55,9 @@
 	</div>
 
 	<svelte:fragment slot="action-buttons">
-		{#if copying}
-			<button class="button button-red rounded" on:click={resetCopy}>Cancel</button>
-			<button class="button button-greeen rounded" on:click={() => (copying = true)}>Commit</button>
+		{#if $copyMoveActive}
+			<button use:copyMove.resetButton class="button button-red rounded">Cancel</button>
+			<button use:copyMove.commitButton class="button button-green rounded">Commit</button>
 		{/if}
 	</svelte:fragment>
 </Layout>

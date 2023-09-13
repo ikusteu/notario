@@ -4,3 +4,5 @@ export { NavButtonGroup } from "./NavButtonGroup";
 export { NoteCard } from "./NoteCard";
 
 export { ProjectSection } from "./Blocks";
+
+export { copyMoveStore } from "./actions/copyMoveNotes";
