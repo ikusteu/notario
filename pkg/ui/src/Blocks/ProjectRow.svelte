@@ -3,9 +3,9 @@
 </script>
 
 <section class="relative py-4 px-6 {$$restProps.class}">
-	<div class="h-8">
+	<div class="h-10">
 		{#if title}
-			<h2 class="h-full text-xl">{title}</h2>
+			<h2 class="h-full text-2xl">{title}</h2>
 		{/if}
 	</div>
 
