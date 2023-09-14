@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { type Readable, derived } from "svelte/store";
 import type { ChangeEventHandler } from "svelte/elements";
 
@@ -26,16 +27,10 @@ export const applyDestroyListeners =
 			() => {}
 		);
 
-export const click = (handler: () => void, id?: string) => (node: HTMLElement) => {
+export const click = (handler: () => void) => (node: HTMLElement) => {
 	node.addEventListener("click", handler);
-	if (id) {
-		console.log("Click listener added for", id);
-	}
 	return () => {
 		node.removeEventListener("click", handler);
-		if (id) {
-			console.log("Click listener removed for", id);
-		}
 	};
 };
 
@@ -59,7 +54,7 @@ export const applyIf =
 		registerEventListener: (node: N) => () => void
 	) =>
 	(node: N) => {
-		let unregister = registerEventListener(node);
+		const unregister = registerEventListener(node);
 		const unsubscribe = derived(stores, condition).subscribe((c) => (c ? registerEventListener(node) : unregister()));
 
 		return () => {

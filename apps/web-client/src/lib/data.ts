@@ -53,11 +53,32 @@ export const notes = [
 	}
 ];
 
-export const sections = [
-	{ id: "intro", name: "Intro", notes },
-	{ id: "met", name: "Methodology", notes },
-	{ id: "res", name: "Results", notes },
-	{ id: "conc", name: "Conclusion", notes }
+export const noteLookup = new Map(notes.map((note) => [note.id, note] as [string, typeof note]));
+
+const createSubsections = (sectionId: string) => [
+	{
+		id: `${sectionId}-subsection-1`,
+		name: "This is a long subsection name to test the UI when wrapping the name, ,long as it is... 1",
+		notes: ["note-1", "note-2"]
+	},
+	{ id: `${sectionId}-subsection-2`, name: "Subsection 2", notes: ["note-3", "note-4"] },
+	{ id: `${sectionId}-subsection-3`, name: "Subsection 3", notes: ["note-5"] }
 ];
 
-export const views = ["Sections", "Subsections", "Text"];
+export const sections = [
+	{ id: "intro", name: "Intro", notes, subsections: createSubsections("intro") },
+	{ id: "met", name: "Methodology", notes, subsections: createSubsections("met") },
+	{ id: "res", name: "Results", notes, subsections: createSubsections("res") },
+	{ id: "conc", name: "Conclusion", notes, subsections: createSubsections("conc") }
+];
+
+export const routes = [
+	{
+		label: "Sections",
+		href: "/project/any/sections"
+	},
+	{
+		label: "Subsections",
+		href: "/project/any/subsections"
+	}
+];

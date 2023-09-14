@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { page } from "$app/stores";
+
 	import { Layout, NavButtonGroup, ProjectSection, NoteCard, copyMoveStore } from "@notario/ui";
 
-	import { projects, resources, views, sections, notes } from "./data";
+	import { projects, resources, routes, sections, notes } from "$lib/data";
 
 	const noteMap = new Map([
 		["intro", new Set(notes.map(({ id }) => id))],
@@ -14,10 +16,12 @@
 </script>
 
 <Layout {projects} {resources}>
-	<section slot="content-header" class="flex w-full justify-between border-b px-8 pt-8 pb-16">
-		<h1 class="text-2xl">Project</h1>
-		<NavButtonGroup options={views} current="Sections" />
-		<button class="button button-light-gray">New Section</button>
+	<section slot="content-header" class="relative h-96 w-full border-b">
+		<h1 class="absolute left-8 top-1/2 -translate-y-1/2 text-2xl">Project</h1>
+		<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+			<NavButtonGroup options={routes} current={$page.url.pathname} />
+		</div>
+		<button class="button button-light-gray absolute right-8 top-1/2 -translate-y-1/2">New Section</button>
 	</section>
 
 	<div class="overflow-auto px-8 {$copyMoveActive && 'bg-gray-200/50'}">
@@ -42,6 +46,7 @@
 							</select>
 						</div>
 						<button use:copyMove.initCopyButton={{ from: sectionId }} class="button button-light-gray rounded">Copy</button>
+						<button use:copyMove.initMoveButton={{ from: sectionId }} class="button button-light-gray rounded">Move</button>
 					{/if}
 				</svelte:fragment>
 

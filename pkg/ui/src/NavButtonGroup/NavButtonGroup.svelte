@@ -1,22 +1,18 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
+	export let options: { label: string; href: string }[] = [];
+	export let current = "";
 
-	export let options: string[] = [];
-	export let current: string = options[0] || "";
-
-	const setCurrent = (option: string) => (current = option);
-
-	const dispatch = createEventDispatcher<{ change: string }>();
-	$: dispatch("change", current);
+	const trimPath = (path: string) => path.trim().replace(/^\//, "").replace(/\/$/, "");
+	const isEqualPath = (a: string, b: string) => trimPath(a) === trimPath(b);
 </script>
 
 <nav class="inline-block overflow-hidden rounded border border-gray-700">
 	<ul class="flex list-none flex-row divide-x divide-gray-700">
-		{#each options as option}
+		{#each options as { label, href }}
 			<li>
-				<button class="button {option === current ? 'button-light-gray' : 'button-gray'}" on:click={() => setCurrent(option)}
-					>{option}</button
-				>
+				<a {href}>
+					<button class="button {isEqualPath(current, href) ? 'button-light-gray' : 'button-gray'}">{label}</button>
+				</a>
 			</li>
 		{/each}
 	</ul>

@@ -7,6 +7,9 @@ const config = {
 	preprocess: preprocess(),
 
 	kit: {
+		alias: {
+			lib: "./src/lib"
+		},
 		serviceWorker: {
 			register: false
 		},
