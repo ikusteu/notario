@@ -31,6 +31,7 @@ export interface CopyMoveInternal {
 	dest: Readable<string>;
 	destIncludes: Readable<(id: string) => boolean>;
 	clipboardIncludes: Readable<(id: string) => boolean>;
+	clipboard: Readable<Set<string>>;
 }
 
 export const createCopyMoveInternal = ({ noteMap, copy = async () => {}, move = async () => {} }: InternalParams): CopyMoveInternal => {
@@ -116,6 +117,7 @@ export const createCopyMoveInternal = ({ noteMap, copy = async () => {}, move = 
 		src,
 		dest,
 		destIncludes,
-		clipboardIncludes
+		clipboardIncludes,
+		clipboard
 	};
 };

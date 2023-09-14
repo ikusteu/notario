@@ -7,8 +7,12 @@ import { composeDestroy, applyDestroyListeners, click, change } from "../utils";
 export interface DestinationPickerAction {
 	(node?: HTMLSelectElement, from?: string): { destroy: () => void };
 }
-export interface InitButtonAction {
-	(node?: HTMLButtonElement, from?: string): { destroy: () => void };
+interface InitActionParams {
+	from?: string;
+	to?: string;
+}
+export interface InitAction {
+	(node?: HTMLElement, params?: InitActionParams): { destroy: () => void };
 }
 export interface ButtonAction {
 	(node?: HTMLButtonElement): { destroy: () => void };
@@ -31,11 +35,11 @@ export const createActionElementActions = (internal: CopyMoveInternal) => {
 	const resetButton: ButtonAction = (node: HTMLButtonElement) => composeDestroy(applyDestroyListeners(node)(click(internal.reset)));
 	const commitButton: ButtonAction = (node: HTMLButtonElement) => composeDestroy(applyDestroyListeners(node)(click(internal.commit)));
 
-	const initCopyButton: InitButtonAction = (node, from = "") =>
-		composeDestroy(applyDestroyListeners(node)(click(() => internal.initCopy(from, getFromTo(from)))));
+	const initCopyButton: InitAction = (node, { to = "", from = "" } = {}) =>
+		composeDestroy(applyDestroyListeners(node)(click(() => internal.initCopy(from, to || getFromTo(from)))));
 
-	const initMoveButton: InitButtonAction = (node, from = "") =>
-		composeDestroy(applyDestroyListeners(node)(click(() => internal.initMove(from, getFromTo(from)))));
+	const initMoveButton: InitAction = (node, { to = "", from = "" }) =>
+		composeDestroy(applyDestroyListeners(node)(click(() => internal.initMove(from, to || getFromTo(from)))));
 
 	return {
 		destinationPicker,

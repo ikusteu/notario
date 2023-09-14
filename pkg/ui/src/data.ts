@@ -35,3 +35,13 @@ export const notes = [
 		resourceURL: "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1967574"
 	}
 ];
+
+export const createSubsections = (sectionId: string) => [
+	{
+		id: `${sectionId}-subsection-1`,
+		name: "This is a long subsection name to test the UI when wrapping the name, ,long as it is... 1",
+		notes: ["note-1", "note-2"]
+	},
+	{ id: `${sectionId}-subsection-2`, name: "Subsection 2", notes: ["note-3", "note-4"] },
+	{ id: `${sectionId}-subsection-3`, name: "Subsection 3", notes: ["note-5"] }
+];
