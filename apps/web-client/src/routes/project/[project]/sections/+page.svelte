@@ -41,7 +41,7 @@
 								{/each}
 							</select>
 						</div>
-						<button use:copyMove.initCopyButton={sectionId} class="button button-light-gray rounded">Copy</button>
+						<button use:copyMove.initCopyButton={{ from: sectionId }} class="button button-light-gray rounded">Copy</button>
 					{/if}
 				</svelte:fragment>
 

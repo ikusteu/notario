@@ -1,4 +1,5 @@
 import { type Readable, writable, derived, get } from "svelte/store";
+import { browser } from "$app/environment";
 
 export type NoteMap = Map<string, Set<string>>;
 
@@ -55,7 +56,9 @@ export const createCopyMoveInternal = ({ noteMap, copy = async () => {}, move = 
 	const resetMode = () => mode.set("idle");
 
 	const handleCancel = (e: KeyboardEvent) => e.key === "Escape" && reset();
-	active.subscribe((a) => (a ? window.addEventListener("keydown", handleCancel) : window.removeEventListener("keydown", handleCancel)));
+	active.subscribe(
+		(a) => browser && (a ? window.addEventListener("keydown", handleCancel) : window.removeEventListener("keydown", handleCancel))
+	);
 
 	const src = writable<string>("");
 	const dest = writable<string>("");
