@@ -41,6 +41,7 @@
 	"type": "module",
 	"dependencies": {
 		"@notario/ui": "workspace:*",
+		"@notario/db": "workspace:*",
 		"pouchdb": "~7.3.0",
 		"rxjs": "~7.8.0",
 		"uuid": "~9.0.0",
