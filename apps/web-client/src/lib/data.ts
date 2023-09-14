@@ -75,10 +75,10 @@ export const sections = [
 export const routes = [
 	{
 		label: "Sections",
-		href: "/project/any/sections"
+		href: "/project/project-1/sections"
 	},
 	{
 		label: "Subsections",
-		href: "/project/any/subsections"
+		href: "/project/project-1/subsections"
 	}
 ];

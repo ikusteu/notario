@@ -50,9 +50,8 @@ export const createnEntryActions = (internal: CopyMoveInternal) => {
 					[internal.src, internal.destIncludes],
 					([src, destIncludes]) => src === sectionId && !destIncludes(id),
 					click(() => {
-						console.log("Click", id);
 						internal.toggleSelected(id);
-					}, id)
+					})
 				)
 			)
 		);

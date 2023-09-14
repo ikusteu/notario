@@ -1,22 +1,22 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { type Readable, writable, derived, get } from "svelte/store";
 import { browser } from "$app/environment";
 
 export type NoteMap = Map<string, Set<string>>;
 
 export interface InternalParams {
-	noteMap?: NoteMap;
 	copy?: (from: string, to: string, notes: string[]) => Promise<void>;
 	move?: (from: string, to: string, notes: string[]) => Promise<void>;
 }
 
-interface UpdateNoteMap {
+interface UpdateElementMap {
 	(iterable: Iterable<[string, Iterable<string>]>): void;
 }
 
 export interface CopyMoveInternal {
 	sections: Readable<string[]>;
 	updateSections(sections: Iterable<string>): void;
-	updateElementMap: UpdateNoteMap;
+	updateElementMap: UpdateElementMap;
 
 	initCopy(from: string, to: string): void;
 	initMove(from: string, to: string): void;
@@ -35,21 +35,22 @@ export interface CopyMoveInternal {
 	clipboard: Readable<Set<string>>;
 }
 
-export const createCopyMoveInternal = ({ noteMap, copy = async () => {}, move = async () => {} }: InternalParams): CopyMoveInternal => {
-	const sections = writable([...noteMap.keys()]);
-	const updateSections = (s: Iterable<string>) => sections.set([...s]);
-
-	const noteMapStore = writable(noteMap);
-	const updateElementMap: UpdateNoteMap = (iterable) =>
-		noteMapStore.set(
+export const createCopyMoveInternal = ({ copy = async () => {}, move = async () => {} }: InternalParams): CopyMoveInternal => {
+	const elementMapStore = writable(new Map<string, Set<string>>());
+	const updateElementMap: UpdateElementMap = (iterable) =>
+		elementMapStore.set(
 			new Map<string, Set<string>>(
 				(function* () {
-					for (let [k, v] of iterable) {
+					for (const [k, v] of iterable) {
 						yield [k, new Set<string>(v)];
 					}
 				})()
 			)
 		);
+
+	const sections = writable([]);
+	const updateSections = (s: Iterable<string>) => sections.set([...s]);
+	elementMapStore.subscribe((em) => updateSections(em.keys()));
 
 	const mode = writable<"idle" | "copy" | "move">("idle");
 	const active = derived(mode, (m) => m !== "idle");
@@ -64,10 +65,10 @@ export const createCopyMoveInternal = ({ noteMap, copy = async () => {}, move = 
 	const dest = writable<string>("");
 
 	const destIncludes = derived(
-		[noteMapStore, dest],
-		([nms, ct]) =>
+		[elementMapStore, dest],
+		([ems, ct]) =>
 			(id: string) =>
-				ct && nms.get(ct)?.has(id)
+				ct && ems.get(ct)?.has(id)
 	);
 
 	const clipboard = writable(new Set<string>());
@@ -87,8 +88,10 @@ export const createCopyMoveInternal = ({ noteMap, copy = async () => {}, move = 
 		switch (get(mode)) {
 			case "copy":
 				await copy(from, to, notes);
+				break;
 			case "move":
 				await move(from, to, notes);
+				break;
 			default:
 				break;
 		}
@@ -97,15 +100,14 @@ export const createCopyMoveInternal = ({ noteMap, copy = async () => {}, move = 
 	};
 
 	const toggleSelected = (id: string) => {
-		console.log("Toggle");
 		return clipboard.update((c) => (c.has(id) ? c.delete(id) : c.add(id), c));
 	};
 	const removeSelected = (id: string) => clipboard.update((c) => (c.delete(id), c));
 
 	return {
 		sections,
-		updateSections,
 		updateElementMap,
+		updateSections,
 
 		initCopy,
 		initMove,

@@ -1,4 +1,4 @@
-import { type Writable, writable, get } from "svelte/store";
+import { writable, get } from "svelte/store";
 
 import type { CopyMoveInternal } from "./internal";
 
@@ -26,7 +26,7 @@ export const createActionElementActions = (internal: CopyMoveInternal) => {
 		fromToMap.update((m) => new Map(sections.map((s) => [s, m.get(s) || getSectionsOptions(s)[0]])))
 	);
 
-	const updateFromTo = (from: string, to: string) => fromToMap.update((m) => m.set(from, to));
+	const updateFromTo = (from: string, to: string) => fromToMap.update((m) => (m.set(from, to), m));
 	const getFromTo = (from: string) => get(fromToMap).get(from);
 
 	const destinationPicker: DestinationPickerAction = (node, from = "") =>

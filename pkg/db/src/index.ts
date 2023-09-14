@@ -8,6 +8,8 @@ import { CouchDocument, NoteDataClient } from "./types";
 import { newChangesStream } from "./utils";
 import { NoteData } from "./note";
 
+export * from "./types";
+
 export interface DatabaseStream {
 	noteMap: Observable<Map<string, NoteDataClient>>;
 }
@@ -86,7 +88,9 @@ const aggregateNoteMap = (docs: Array<CouchDocument<ResourceData> | CouchDocumen
 	const addNote = (data: CouchDocument<NoteData>) => {
 		const resourceId = data._id.split("/").slice(0, 2).join("/");
 		const resourceData = r.get(resourceId) as { resourceURL: string; resourceName: string };
+		const shortId = data._id.split("/").pop() as string;
 		m.set(data._id, { id: data._id, content: data.content, ...resourceData });
+		m.set(shortId, { id: data._id, content: data.content, ...resourceData });
 	};
 
 	for (const doc of docs) {

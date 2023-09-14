@@ -1,18 +1,57 @@
 <script lang="ts">
+	import { combineLatest, map } from "rxjs";
 	import { page } from "$app/stores";
+	import { derived } from "svelte/store";
 
 	import { Layout, NavButtonGroup, ProjectSection, NoteCard, copyMoveStore } from "@notario/ui";
 
-	import { projects, resources, routes, sections, notes } from "$lib/data";
+	import type { PageData } from "./$types";
 
-	const noteMap = new Map([
-		["intro", new Set(notes.map(({ id }) => id))],
-		["met", new Set(notes.slice(0, 2).map(({ id }) => id))],
-		["res", new Set(notes.map(({ id }) => id))],
-		["conc", new Set(notes.map(({ id }) => id))]
-	]);
+	import { readableFromStream } from "$lib/utils";
 
-	const { active: copyMoveActive, src, dest, ...copyMove } = copyMoveStore({ noteMap });
+	import { projects, resources, routes } from "$lib/data";
+
+	export let data: PageData;
+
+	const { db } = data;
+
+	$: projectId = $page.params.project;
+
+	$: doc = readableFromStream(db?.project(projectId).stream().doc(), {
+		_id: projectId,
+		_rev: "",
+		docType: "project",
+		name: projectId,
+		sections: []
+	});
+	$: sections = readableFromStream(
+		combineLatest(
+			$doc.sections.map((id) =>
+				db
+					.project(projectId)
+					.section(id)
+					.stream()
+					.doc()
+					.pipe(map(({ _id, ...section }) => ({ ...section, id: _id })))
+			)
+		),
+		[]
+	);
+	$: noteLookup = readableFromStream(db?.stream().noteMap, new Map());
+	$: noteMap = derived(sections, (s) =>
+		s.map(({ id, notes }) => [id, notes.map((n) => $noteLookup.get(n)?.id || "")] as [string, string[]])
+	);
+
+	const {
+		active: copyMoveActive,
+		clipboard,
+		src,
+		dest,
+		...copyMove
+	} = copyMoveStore({
+		// copy
+	});
+	$: copyMove.updateElementMap($noteMap);
 </script>
 
 <Layout {projects} {resources}>
@@ -25,8 +64,8 @@
 	</section>
 
 	<div class="overflow-auto px-8 {$copyMoveActive && 'bg-gray-200/50'}">
-		{#each sections as { id: sectionId, name, notes }}
-			{@const otherSections = sections.filter((s) => s.id !== sectionId)}
+		{#each $sections as { id: sectionId, name, notes }}
+			{@const otherSections = $sections.filter((s) => s.id !== sectionId)}
 
 			<ProjectSection
 				{name}
@@ -51,7 +90,8 @@
 				</svelte:fragment>
 
 				<svelte:fragment slot="notes">
-					{#each notes as note}
+					{#each notes as noteId}
+						{@const note = $noteLookup.get(noteId) || {}}
 						<NoteCard action={copyMove.entry} {sectionId} {...note} />
 					{/each}
 				</svelte:fragment>
