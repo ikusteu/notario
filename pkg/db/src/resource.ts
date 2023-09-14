@@ -23,6 +23,7 @@ export interface ResourceInterface {
 	id(): string;
 	create(): Promise<ResourceInterface>;
 	get(): Promise<CouchDocument<ResourceData> | undefined>;
+	setName(name: string): Promise<ResourceInterface>;
 	setPath(path: string): Promise<ResourceInterface>;
 	setAuthors(authors: string[]): Promise<ResourceInterface>;
 	setYear(year: number): Promise<ResourceInterface>;
@@ -61,6 +62,11 @@ export class Resource implements ResourceInterface {
 
 	get() {
 		return this.#internal.get();
+	}
+
+	async setName(name: string) {
+		await this.#internal.update((data) => ({ ...data, name }));
+		return this;
 	}
 
 	async setPath(path: string) {
