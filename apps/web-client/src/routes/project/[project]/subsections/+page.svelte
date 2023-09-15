@@ -100,7 +100,17 @@
 
 	<div class="overflow-auto px-8 {$copyMoveActive && 'bg-gray-200/50'}">
 		{#each $sections as { id: sectionId, name, notes, subsections }, sectionIx}
-			<ProjectSubsection disabled={$copyMoveActive && $src !== sectionId} {name}>
+			{@const section = db.project(projectId).section(sectionId)}
+
+			<ProjectSubsection
+				on:add={() =>
+					section
+						.subsection()
+						.create()
+						.then((s) => s.setName(`Subsection ${subsections.length + 1}`))}
+				disabled={$copyMoveActive && $src !== sectionId}
+				{name}
+			>
 				<svelte:fragment slot="notes">
 					{#each notes as n}
 						{@const note = $noteLookup.get(n) || {}}
@@ -109,12 +119,15 @@
 				</svelte:fragment>
 				<svelte:fragment slot="subsections">
 					{#each subsections as { id: subsectionId, name, notes }, i}
+						{@const subsection = section.subsection(subsectionId)}
+
 						<SubsectionCard
 							{sectionId}
+							{name}
 							id={subsectionId}
 							initCopyAction={copyMove.initCopyButton}
 							active={$copyMoveActive && $dest === subsectionId}
-							{name}
+							on:rename={({ detail }) => subsection.setName(detail)}
 							prefix="{sectionIx + 1}.{i + 1}"
 						>
 							{#each notes as n}
