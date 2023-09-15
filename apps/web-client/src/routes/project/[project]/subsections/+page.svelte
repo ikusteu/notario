@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { combineLatest, map, switchMap } from "rxjs";
-	import { derived } from "svelte/store";
+	import { derived, get } from "svelte/store";
 	import { page } from "$app/stores";
 
-	import { Layout, NavButtonGroup, ProjectSubsection, NoteCard, SubsectionCard, copyMoveStore } from "@notario/ui";
+	import { Layout, NavButtonGroup, ProjectSubsection, NoteCard, SubsectionCard, copyMoveStore, TextEditable } from "@notario/ui";
 
 	import type { PageData } from "./$types";
 
 	import { readableFromStream } from "$lib/utils";
 
-	import { projects, resources, routes } from "$lib/data";
+	import { createRoutes, projects, resources } from "$lib/data";
 
 	export let data: PageData;
 
@@ -31,6 +31,12 @@
 		name: projectId,
 		sections: []
 	});
+
+	$: nameStore = {
+		subscribe: derived(doc, (d) => d.name).subscribe,
+		set: (name: string) => name !== get(doc).name && db.project(projectId).setName(name)
+	};
+
 	$: sections = readableFromStream(
 		combineLatest(
 			$doc.sections.map((id) =>
@@ -85,10 +91,10 @@
 </script>
 
 <Layout {projects} {resources}>
-	<section slot="content-header" class="relative h-96 w-full border-b">
-		<h1 class="absolute left-8 top-1/2 -translate-y-1/2 text-2xl">Project</h1>
+	<section slot="content-header" class="relative h-24 w-full flex-shrink-0 flex-grow-0 border-b">
+		<TextEditable bind:value={$nameStore} class="absolute left-8 top-1/2 -translate-y-1/2 text-2xl" />
 		<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-			<NavButtonGroup options={routes} current={$page.url.pathname} />
+			<NavButtonGroup options={createRoutes(projectId)} current={$page.url.pathname} />
 		</div>
 	</section>
 

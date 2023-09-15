@@ -72,13 +72,13 @@ export const sections = [
 	{ id: "conc", name: "Conclusion", notes, subsections: createSubsections("conc") }
 ];
 
-export const routes = [
+export const createRoutes = (projectId: string) => [
 	{
 		label: "Sections",
-		href: "/project/project-1/sections"
+		href: `/project/${projectId}/sections`
 	},
 	{
 		label: "Subsections",
-		href: "/project/project-1/subsections"
+		href: `/project/${projectId}/subsections`
 	}
 ];
