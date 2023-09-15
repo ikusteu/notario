@@ -23,10 +23,15 @@
 
 <div
 	use:action={{ id, sectionId, select, disable, highlight, interactive }}
-	class="my-4 rounded border p-4 pb-4 {clickable && 'select-none hover:cursor-pointer'} {active && 'bg-green-300/50'} {(active ||
-		highlighted) &&
-		'outline outline-2 outline-green-300'} {disabled && 'select-none bg-gray-300'}"
+	class="group relative my-4 overflow-hidden rounded border p-4 pb-4 {clickable && 'select-none hover:cursor-pointer'} {active &&
+		'bg-green-300/50'} {(active || highlighted) && 'outline outline-2 outline-green-300'} {disabled && 'select-none bg-gray-300'}"
 >
+	{#if $$slots.actionButtons}
+		<div class="absolute top-2 right-2 hidden group-hover:block">
+			<slot name="actionButtons" />
+		</div>
+	{/if}
+
 	<p class="mb-4 text-gray-700">{content}</p>
 	<div class="select-none text-right text-base italic text-gray-500">
 		{#if resourceURL && ![clickable, active, disabled, highlighted].some(Boolean)}

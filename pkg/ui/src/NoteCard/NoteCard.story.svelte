@@ -2,6 +2,7 @@
 	import type { Hst } from "@histoire/plugin-svelte";
 
 	import NoteCard from "./NoteCard.svelte";
+	import { ActionButtons } from "../ActionButtons";
 
 	const note = {
 		id: "note-1",
@@ -17,7 +18,11 @@
 <Hst.Story title="Note Card" layout={{ type: "grid", width: 800 }}>
 	<Hst.Variant title="Default">
 		<div class="p-4">
-			<NoteCard {...note} />
+			<NoteCard {...note}>
+				<svelte:fragment slot="actionButtons">
+					<ActionButtons actions={["moveup", "movedown", "remove"]} />
+				</svelte:fragment>
+			</NoteCard>
 		</div>
 	</Hst.Variant>
 	<Hst.Variant title="Clickable">
@@ -27,7 +32,11 @@
 	</Hst.Variant>
 	<Hst.Variant title="Outlined">
 		<div class="p-4">
-			<NoteCard highlighted {...note} />
+			<NoteCard highlighted {...note}>
+				<svelte:fragment slot="actionButtons">
+					<ActionButtons actions={["moveup", "movedown", "remove"]} />
+				</svelte:fragment>
+			</NoteCard>
 		</div>
 	</Hst.Variant>
 	<Hst.Variant title="Active">

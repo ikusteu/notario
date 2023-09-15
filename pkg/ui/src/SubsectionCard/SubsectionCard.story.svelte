@@ -3,6 +3,7 @@
 
 	import SubsectionCard from "./SubsectionCard.svelte";
 	import { NoteCard } from "../NoteCard";
+	import { ActionButtons } from "../ActionButtons";
 
 	import { notes } from "../data";
 
@@ -18,6 +19,10 @@
 	<Hst.Variant title="Default">
 		<div class="px-6">
 			<SubsectionCard on:click={toggleActive} {name} {active} prefix="1.1">
+				<svelte:fragment slot="actionButtons" let:renaming>
+					<ActionButtons on:edit={() => renaming.set(true)} actions={["edit", "moveup", "movedown", "remove"]} />
+				</svelte:fragment>
+
 				{#each notes.slice(0, 2) as note}
 					<NoteCard disabled {...note} />
 				{/each}

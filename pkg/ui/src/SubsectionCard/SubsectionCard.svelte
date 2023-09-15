@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { ArrowUp, ArrowDown, Trash, ArrowRight, Pencil } from "lucide-svelte";
+	import { ArrowRight } from "lucide-svelte";
 	import { createEventDispatcher, tick } from "svelte";
 
 	import type { InitAction } from "../actions/copyMoveNotes";
+	import { writable } from "svelte/store";
 
 	export let sectionId = "";
 
@@ -19,19 +20,14 @@
 
 	const dispatch = createEventDispatcher<{ moveup: void; movedown: void; remove: void; rename: string }>();
 
-	const moveup = () => dispatch("moveup");
-	const movedown = () => dispatch("movedown");
-	const remove = () => dispatch("remove");
-
 	// Edit name
 	let nameInput: HTMLInputElement = null;
-	let renaming = false;
+	const renaming = writable(false);
 
 	$: renaming && tick().then(() => nameInput && (nameInput.focus(), nameInput.setAttribute("value", name)));
-	$: active && tick().then(() => (renaming = false));
+	$: active && tick().then(() => ($renaming = false));
 
-	const initRename = () => (renaming = true);
-	const cancelRename = () => (renaming = false);
+	const cancelRename = () => ($renaming = false);
 	const confirmRename = () => {
 		const value = nameInput?.value.trim();
 		if (value) {
@@ -64,7 +60,7 @@
 		>
 		<div class="flex min-h-[44px] w-full gap-2 px-4 py-2 text-lg tracking-normal">
 			<span>{prefix}</span>
-			{#if renaming}
+			{#if $renaming}
 				<input class="h-7 w-full" bind:this={nameInput} type="text" on:keydown={handleInputKeydown} on:blur={cancelRename} />
 			{:else}
 				<span>
@@ -72,30 +68,9 @@
 				</span>
 			{/if}
 		</div>
-		{#if !active && !renaming}
-			<div
-				class="absolute top-1/2 right-0 hidden -translate-y-1/2 items-center justify-start gap-x-2 rounded-[32px] bg-white py-1 px-2 shadow-[0px_0px_20px_16px_#ffffff] group-hover:flex"
-			>
-				<button
-					on:click|stopPropagation={initRename}
-					on:keydown
-					class="flex h-8 w-8 items-center justify-center rounded-full p-1 text-gray-500 hover:bg-gray-100"><Pencil /></button
-				>
-				<button
-					on:click|stopPropagation={moveup}
-					on:keydown
-					class="flex h-8 w-8 items-center justify-center rounded-full p-1 text-gray-500 hover:bg-gray-100"><ArrowUp /></button
-				>
-				<button
-					on:click|stopPropagation={movedown}
-					on:keydown
-					class="flex h-8 w-8 items-center justify-center rounded-full p-1 text-gray-500 hover:bg-gray-100"><ArrowDown /></button
-				>
-				<button
-					on:click|stopPropagation={remove}
-					on:keydown
-					class="flex h-8 w-8 items-center justify-center rounded-full p-1 text-gray-500 hover:bg-gray-100"><Trash /></button
-				>
+		{#if !active && !$renaming && $$slots.actionButtons}
+			<div class="absolute top-1/2 right-0 hidden -translate-y-1/2 group-hover:block">
+				<slot {renaming} name="actionButtons" />
 			</div>
 		{/if}
 	</div>
